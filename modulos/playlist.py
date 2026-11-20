@@ -1,16 +1,6 @@
-"""Playlist como LISTA DOBLEMENTE ENLAZADA.
-
-Cada nodo es un diccionario: {"id": id_cancion, "anterior": nodo | None, "siguiente": nodo | None}
-La lista es otro diccionario: {"cabeza": nodo, "cola": nodo, "actual": nodo, "tamanio": n}
-
-Por qué una lista enlazada y no una lista normal:
-  - "Reproducir a continuación" inserta una canción justo después de la actual.
-  - Quitar o mover canciones en medio no obliga a desplazar todo lo demás.
-  - Siguiente / anterior son seguir un enlace.
-
-Los nodos se apuntan entre sí (hay ciclos), y json no puede guardar ciclos. Por eso en el
-archivo se guarda solo la lista de ids (a_lista) y al cargar se reconstruye (desde_lista).
-"""
+#Playlist como LISTA DOBLEMENTE ENLAZADA.
+#Cada nodo es un diccionario: {"id": id_cancion, "anterior": nodo | None, "siguiente": nodo | None}
+#La lista es otro diccionario: {"cabeza": nodo, "cola": nodo, "actual": nodo, "tamanio": n}
 import random
 
 
@@ -32,7 +22,7 @@ def buscar(lista, id_cancion):
 
 
 def _enlazar_despues(lista, referencia, nodo):
-    """Pone 'nodo' justo después de 'referencia'. Si referencia es None, lo pone al inicio."""
+    #Pone nodo justo después de 'referencia'. Si referencia es None, lo pone al inicio.
     if referencia is None:
         nodo["anterior"] = None
         nodo["siguiente"] = lista["cabeza"]
@@ -52,7 +42,7 @@ def _enlazar_despues(lista, referencia, nodo):
 
 
 def _desenlazar(lista, nodo):
-    """Saca el nodo de la cadena (los vecinos se conectan entre sí)."""
+    #Saca el nodo de la cadena (los vecinos se conectan entre sí).
     anterior, siguiente = nodo["anterior"], nodo["siguiente"]
     if anterior is not None:
         anterior["siguiente"] = siguiente
@@ -78,7 +68,7 @@ def agregar_al_final(lista, id_cancion):
 
 
 def a_continuacion(lista, id_cancion):
-    """'Reproducir a continuación': la deja justo después de la actual (la mueve si ya estaba)."""
+    #Reproducir a continuación: la deja justo después de la actual (la mueve si ya estaba).
     actual = lista["actual"]
     if actual is None:
         return agregar_al_final(lista, id_cancion)
@@ -98,7 +88,7 @@ def eliminar(lista, id_cancion):
     nodo = buscar(lista, id_cancion)
     if nodo is None:
         return False
-    if lista["actual"] is nodo:           # si era la que sonaba, pasa a la vecina
+    if lista["actual"] is nodo:           #si era la que sonaba, pasa a la vecina
         lista["actual"] = nodo["siguiente"] if nodo["siguiente"] is not None else nodo["anterior"]
     _desenlazar(lista, nodo)
     lista["tamanio"] -= 1
@@ -127,7 +117,7 @@ def mover_al_inicio(lista, id_cancion):
 
 
 def avanzar(lista, circular=False):
-    """Pasa a la siguiente. Devuelve su id, o None si ya era la última (y no es circular)."""
+    #Pasa a la siguiente. Devuelve su id, o None si ya era la última (y no es circular).
     actual = lista["actual"]
     if actual is None:
         return None
@@ -166,7 +156,7 @@ def id_actual(lista):
 
 
 def posicion_actual(lista):
-    """Posición (empezando en 1) de la canción actual; 0 si la lista está vacía."""
+    #Posición (empezando en 1) de la canción actual; 0 si la lista está vacía.
     posicion = 0
     nodo = lista["cabeza"]
     while nodo is not None:
@@ -178,7 +168,7 @@ def posicion_actual(lista):
 
 
 def a_lista(lista):
-    """Recorre la cadena y devuelve los ids en orden (esto es lo que se guarda en JSON)."""
+    #Recorre la cadena y devuelve los ids en orden (esto es lo que se guarda en JSON).
     ids = []
     nodo = lista["cabeza"]
     while nodo is not None:
@@ -188,7 +178,7 @@ def a_lista(lista):
 
 
 def desde_lista(ids, id_en_curso=None):
-    """Reconstruye la cadena de nodos a partir de una lista de ids."""
+    #Reconstruye la cadena de nodos a partir de una lista de ids.
     lista = crear()
     for id_cancion in ids:
         agregar_al_final(lista, id_cancion)
@@ -198,7 +188,7 @@ def desde_lista(ids, id_en_curso=None):
 
 
 def mezclar(lista):
-    """Desordena la playlist; la canción que suena queda de primera."""
+    #Desordena la playlist; la canción que suena queda de primera.
     ids = a_lista(lista)
     en_curso = id_actual(lista)
     random.shuffle(ids)
