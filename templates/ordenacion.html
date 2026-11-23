@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ritmo · Ordenación con burbujas</title>
+  <meta name="description" content="Mira cómo los algoritmos de ordenación mueven tus canciones, paso a paso.">
+  <meta name="theme-color" content="#f4f6fb">
+  <link rel="icon" href="{{ url_for('static', filename='icono.svg') }}" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='ordenacion.css') }}">
+</head>
+<body class="pagina-orden">
+  <header class="cabecera">
+    <div class="cabecera-in">
+      <a class="marca" href="/" aria-label="Ritmo, inicio"><span class="logo" aria-hidden="true"></span>Ritmo</a>
+      <nav class="tabs" aria-label="Secciones">
+        <a href="/app">Reproductor</a>
+        <a href="/ordenacion" class="activa" aria-current="page">Ordenación</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="titular">
+      <h1>Ordenación con burbujas</h1>
+      <p class="suave">Elige una lista y un algoritmo, y mira cada comparación e intercambio. El tamaño de cada burbuja es su valor (en canciones, la duración).</p>
+    </div>
+
+    <form class="controles" id="controles" onsubmit="return false">
+      <label>Lista
+        <select id="fuente">
+          <option value="canciones">Biblioteca</option>
+          <option value="playlist">Mi playlist</option>
+          <option value="numeros">Números</option>
+        </select>
+      </label>
+      <label id="caja-campo">Ordenar por
+        <select id="campo">
+          <option value="duracion">Duración</option>
+          <option value="titulo">Título</option>
+          <option value="artista">Artista</option>
+          <option value="genero">Género</option>
+        </select>
+      </label>
+      <label id="caja-numeros" hidden>Números (1–999, separados por comas)
+        <span class="fila-num">
+          <input id="numeros" inputmode="numeric" autocomplete="off" value="42, 7, 19, 88, 3, 56, 24, 71, 12, 35">
+          <button type="button" class="btn sec" id="aleatorios">Aleatorios</button>
+        </span>
+      </label>
+      <label>Algoritmo
+        <select id="algoritmo"></select>
+      </label>
+      <label>Sentido
+        <select id="sentido">
+          <option value="asc">Ascendente (A→Z, corto→largo)</option>
+          <option value="desc">Descendente</option>
+        </select>
+      </label>
+      <label class="velocidad">Velocidad
+        <input type="range" id="velocidad" min="1" max="10" value="5" aria-valuetext="5 de 10">
+      </label>
+    </form>
+
+    <section class="tablero" aria-label="Animación de la ordenación">
+      <div class="barra">
+        <div class="botones">
+          <button class="btn" id="play" type="button">Ordenar</button>
+          <button class="btn sec" id="paso" type="button">Un paso</button>
+          <button class="btn sec" id="reiniciar" type="button">Reiniciar</button>
+        </div>
+        <dl class="contadores">
+          <div><dt>Comparaciones</dt><dd id="n-comp">0</dd></div>
+          <div><dt>Intercambios</dt><dd id="n-swap">0</dd></div>
+          <div><dt>Paso</dt><dd id="n-paso">0 / 0</dd></div>
+        </dl>
+      </div>
+      <div class="progreso" aria-hidden="true"><span id="progreso"></span></div>
+      <div class="escenario" id="escenario"><div class="escenario-in" id="burbujas"></div></div>
+      <p class="narracion" id="narracion" aria-live="polite">Pulsa «Ordenar» para empezar.</p>
+      <ul class="leyenda" aria-label="Leyenda">
+        <li><i class="l-compara"></i>Comparando</li>
+        <li><i class="l-intercambia"></i>Intercambio</li>
+        <li><i class="l-pivote"></i>Pivote</li>
+        <li><i class="l-fija"></i>En su sitio</li>
+      </ul>
+      <div class="aplicar" id="aplicar" hidden>
+        <span>¿Dejar tu playlist en este orden?</span>
+        <button class="btn" id="btn-aplicar" type="button">Aplicar a mi playlist</button>
+      </div>
+    </section>
+
+    <div class="dos-col">
+      <section aria-labelledby="t-lista">
+        <h2 id="t-lista">La lista, en este momento</h2>
+        <ol class="lista-orden" id="lista"></ol>
+      </section>
+      <section aria-labelledby="t-algo">
+        <h2 id="t-algo">Cómo funciona</h2>
+        <div class="tarjeta" id="info"></div>
+        <h2 class="t-comparar">Comparar algoritmos</h2>
+        <p class="suave">Ejecuta los cuatro sobre la misma lista y cuenta el trabajo de cada uno.</p>
+        <button class="btn sec" id="comparar" type="button">Comparar con esta lista</button>
+        <div class="tabla-envoltura"><table class="tabla" id="tabla" hidden></table></div>
+      </section>
+    </div>
+  </main>
+
+  <div class="aviso" id="aviso" role="status"></div>
+  <script src="{{ url_for('static', filename='ordenacion.js') }}"></script>
+</body>
+</html>
