@@ -19,7 +19,7 @@ reproducir su propia colección de música.
 | Maykel Cruz | [Mightkel](https://github.com/Mightkel) / [MaykelCruz](https://github.com/MaykelCruz) |
 | Humberto René Ruiz Rodríguez | [ur1ii](https://github.com/ur1ii) |
 | José Alfredo Baca Moreno | [JaBaca67](https://github.com/JaBaca67) |
-| Justin | [justin1021208](https://github.com/justin1021208) |
+| Justin Leandro Ruiz Madrigal | [justin1021208](https://github.com/justin1021208) |
 
 ## Funciones principales
 
