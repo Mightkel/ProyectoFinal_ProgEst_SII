@@ -11,7 +11,8 @@
 .titular p { max-width: 62ch; }
 
 /* ---------- Controles ---------- */
-.controles { display: flex; flex-wrap: wrap; gap: 14px 18px; align-items: end; margin: 28px 0 20px; }
+/* justify-content anula el centrado de .controles del reproductor (style.css) */
+.controles { display: flex; flex-wrap: wrap; gap: 14px 18px; align-items: end; justify-content: flex-start; margin: 28px 0 20px; }
 .controles label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; color: var(--suave); }
 .controles select, .controles input:not([type=range]) { font-size: 15px; font-weight: 500; color: var(--tinta); min-width: 150px; }
 .controles label[hidden] { display: none; }
@@ -57,11 +58,12 @@
 .narracion { min-height: 1.5em; margin-top: 4px; font-weight: 500; }
 .leyenda { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 13px; color: var(--suave); }
 .leyenda li { display: flex; align-items: center; gap: 6px; }
-.leyenda i { width: 12px; height: 12px; border-radius: 50%; border: 2px solid; }
-.l-compara { border-color: var(--compara) !important; }
-.l-intercambia { background: var(--intercambia); border-color: var(--intercambia) !important; }
-.l-pivote { border-color: var(--pivote) !important; border-style: dashed !important; }
-.l-fija { background: #8fdcb5; border-color: var(--fija) !important; }
+/* background y margin anulan la regla .leyenda i del mapa (style.css), que rellenaba los círculos huecos */
+.leyenda i { width: 12px; height: 12px; border-radius: 50%; border: 2px solid; background: transparent; margin-right: 0; }
+.leyenda i.l-compara { border-color: var(--compara); }
+.leyenda i.l-intercambia { background: var(--intercambia); border-color: var(--intercambia); }
+.leyenda i.l-pivote { border-color: var(--pivote); border-style: dashed; }
+.leyenda i.l-fija { background: #8fdcb5; border-color: var(--fija); }
 
 .aplicar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 14px; padding: 12px 16px; border-radius: 16px; background: color-mix(in srgb, var(--fija) 12%, transparent); font-weight: 500; }
 .aplicar[hidden] { display: none; }

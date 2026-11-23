@@ -22,6 +22,7 @@
       <nav aria-label="Principal">
         <a href="#funciones">Funciones</a>
         <a href="#capturas">Así se ve</a>
+        <a href="#ordenacion">Ordenación</a>
         <a href="#por-dentro">Por dentro</a>
         <a class="btn chico" href="/app">Abrir Ritmo</a>
       </nav>
@@ -76,6 +77,42 @@
       </div>
     </section>
 
+    <section id="ordenacion" class="contenedor orden">
+      <div class="orden-intro">
+        <div>
+          <h2>Ordenación con burbujas</h2>
+          <p>Elige tu biblioteca, tu playlist o una lista de números y mira cómo un algoritmo la ordena paso a paso. Cada canción es una burbuja: su tamaño muestra su duración, y se mueven en pantalla cada vez que el algoritmo las compara o intercambia.</p>
+        </div>
+        <a class="btn" href="/ordenacion">Probar la ordenación</a>
+      </div>
+      <ol class="orden-burbujas" aria-hidden="true">
+        <li style="--d:46px">2:58</li><li class="cmp" style="--d:78px">4:31</li><li class="cmp" style="--d:58px">3:22</li><li style="--d:90px">5:13</li>
+      </ol>
+      <div class="cuatro">
+        <article>
+          <h3>Burbuja</h3>
+          <p>Compara cada par de vecinos y los intercambia si están al revés. En cada pasada, el mayor «sube» hasta el final, como una burbuja.</p>
+          <p class="costo">Mejor O(n) · Peor O(n²) · Estable</p>
+        </article>
+        <article>
+          <h3>Selección</h3>
+          <p>Busca el menor de los elementos pendientes y lo coloca en la siguiente posición. Hace pocos intercambios, pero siempre recorre todo.</p>
+          <p class="costo">Mejor O(n²) · Peor O(n²) · No estable</p>
+        </article>
+        <article>
+          <h3>Inserción</h3>
+          <p>Toma cada elemento y lo desliza hacia atrás hasta su lugar dentro de la parte ya ordenada. Es muy rápido si la lista casi está en orden.</p>
+          <p class="costo">Mejor O(n) · Peor O(n²) · Estable</p>
+        </article>
+        <article>
+          <h3>Quicksort</h3>
+          <p>Elige un pivote, pone a su izquierda lo que va antes y a su derecha lo que va después, y repite con cada lado.</p>
+          <p class="costo">Promedio O(n log n) · Peor O(n²) · No estable</p>
+        </article>
+      </div>
+      <p class="orden-nota">Puedes avanzar un paso a la vez, cambiar la velocidad, comparar cuántas comparaciones e intercambios hace cada algoritmo con la misma lista y, si ordenaste tu playlist, dejarla en ese orden con un clic.</p>
+    </section>
+
     <section id="por-dentro" class="contenedor dentro">
       <div class="dentro-intro">
         <h2>Por dentro</h2>
@@ -87,6 +124,7 @@
         <div><dt>Árbol binario de búsqueda</dt><dd>El catálogo por título: búsqueda por prefijo y listado de la A a la Z.</dd><code>indice.py</code></div>
         <div><dt>Grafo con pesos</dt><dd>Artistas parecidos: recomendaciones y el camino más corto entre dos artistas.</dd><code>grafo.py</code></div>
         <div><dt>Pila</dt><dd>El historial, para volver a lo último que escuchaste.</dd><code>historial.py</code></div>
+        <div><dt>Algoritmos de ordenación</dt><dd>Burbuja, selección, inserción y Quicksort; cada uno registra sus pasos para animarlos.</dd><code>ordenacion.py</code></div>
       </dl>
     </section>
 

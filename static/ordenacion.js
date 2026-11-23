@@ -193,17 +193,17 @@ function reiniciar() {
   dibujar();
 }
 
+let ultimaPreparacion = 0;
 async function preparar() {
   detener();
   const p = peticion();
-  try {
-    est.datos = await api("/api/ordenar", p);
-    est.peticion = p;
-  } catch (e) {
-    est.datos = null;
-    est.peticion = null;
-    aviso(e.message);
-  }
+  const turno = ++ultimaPreparacion;
+  let datos = null, error = null;
+  try { datos = await api("/api/ordenar", p); } catch (e) { error = e; }
+  if (turno !== ultimaPreparacion) return false;   // llegó una respuesta vieja: ya hay otra petición más reciente
+  est.datos = datos;
+  est.peticion = datos ? p : null;
+  if (error) aviso(error.message);
   reiniciar();
   return est.datos !== null;
 }

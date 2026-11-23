@@ -105,6 +105,66 @@ El grafo representa relaciones entre artistas sin imponer un orden lineal.
 El camino calculado por BFS es el de menos saltos, no el de menor peso. Los pesos
 se usan como afinidad para las recomendaciones.
 
+## Ordenación con burbujas
+
+La página **Ordenación** (`/ordenacion`) muestra, paso a paso, cómo un algoritmo
+ordena una lista. Cada elemento se dibuja como una burbuja; el área de la burbuja
+es proporcional a su valor (en las canciones, la duración).
+
+### Cómo usarla
+
+1. Elegir la **lista**: la biblioteca, la playlist o una lista de números
+   (del 1 al 999, separados por comas; el botón **Aleatorios** genera una).
+2. Elegir el **campo** (duración, título, artista o género), el **algoritmo** y el
+   **sentido** (ascendente o descendente).
+3. Pulsar **Ordenar** para ver la animación, o **Un paso** para avanzar de uno en uno.
+   La **velocidad** se ajusta con el control deslizante y **Reiniciar** vuelve al
+   orden original.
+4. **Comparar con esta lista** ejecuta los cuatro algoritmos sobre los mismos datos
+   y muestra cuántas comparaciones, intercambios y pasos hizo cada uno.
+5. Si la lista era la playlist, al terminar aparece **Aplicar a mi playlist**, que
+   reconstruye la lista enlazada en el nuevo orden sin cambiar la canción actual.
+
+Los colores de la animación indican qué está pasando:
+
+| Color | Significado |
+| --- | --- |
+| Borde naranja | Los dos elementos que se están comparando. |
+| Azul | Los dos elementos que se acaban de intercambiar. |
+| Borde morado punteado | El pivote de Quicksort. |
+| Verde | El elemento ya está en su posición final. |
+
+### Algoritmos
+
+| Algoritmo | Idea | Mejor | Promedio | Peor | Estable |
+| --- | --- | --- | --- | --- | --- |
+| Burbuja | Compara vecinos y los intercambia si están al revés; en cada pasada el mayor queda al final. Si una pasada no hace intercambios, termina antes. | O(n) | O(n²) | O(n²) | Sí |
+| Selección | Busca el menor de los pendientes y lo coloca en la siguiente posición. | O(n²) | O(n²) | O(n²) | No |
+| Inserción | Desplaza cada elemento hacia atrás hasta su lugar dentro de la parte ya ordenada. | O(n) | O(n²) | O(n²) | Sí |
+| Quicksort | Usa el último elemento como pivote, separa menores y mayores, y ordena cada lado. | O(n log n) | O(n log n) | O(n²) | No |
+
+Un algoritmo **estable** conserva el orden original de los elementos con la misma
+clave; por ejemplo, dos canciones con la misma duración no cambian de lugar entre sí.
+
+### Cómo está hecho
+
+Los algoritmos están en `modulos/ordenacion.py`. No mueven las canciones: ordenan
+una lista de índices y registran cada operación (`comparar`, `intercambiar`,
+`pivote` y `fijar`) en una lista de pasos. El servidor devuelve esos pasos y
+`static/ordenacion.js` solo los reproduce, así que la animación muestra exactamente
+lo que hizo el código en Python.
+
+Al ordenar por artista o género se usa el título como segundo criterio, y los textos
+se normalizan (sin acentos ni mayúsculas) antes de compararlos. Como burbuja,
+selección e inserción hacen O(n²) pasos, la animación admite hasta 30 elementos.
+
+| Ruta | Uso |
+| --- | --- |
+| `GET /api/ordenacion/algoritmos` | Nombre, descripción y complejidad de cada algoritmo. |
+| `POST /api/ordenar` | Ordena la lista pedida y devuelve los pasos para animarla. |
+| `POST /api/ordenar/comparar` | Ejecuta los cuatro algoritmos y cuenta su trabajo. |
+| `POST /api/playlist/ordenar` | Ordena la playlist y guarda el nuevo orden. |
+
 ## Demostración rápida
 
 1. Crear tres canciones: A, B y C, con duraciones diferentes.

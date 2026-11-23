@@ -66,6 +66,25 @@ code { background: #e6eaf7; padding: 1px 7px; border-radius: 6px; font-size: .88
 .marco-top i { width: 11px; height: 11px; border-radius: 50%; background: var(--linea); }
 .marco img { display: block; width: 100%; height: auto; }
 
+/* Ordenación con burbujas */
+.orden { padding-bottom: 96px; }
+.orden-intro { display: flex; align-items: end; justify-content: space-between; gap: 24px 40px; flex-wrap: wrap; }
+.orden-intro p { color: var(--suave); margin-top: 18px; max-width: 60ch; }
+.orden-burbujas { list-style: none; padding: 0; display: flex; align-items: center; gap: 18px; min-height: 130px; margin: 36px 0 28px; }
+.orden-burbujas li { width: var(--d); height: var(--d); flex: none; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; background: radial-gradient(circle at 32% 28%, #fff 0 12%, #e6eaff 40%, #c9d1ff 100%); border: 2px solid #aab5f5; }
+.orden-burbujas li.cmp { border-color: #f2a516; box-shadow: 0 0 0 4px rgba(242, 165, 22, .3); animation: flota 2.4s ease-in-out infinite; }
+.orden-burbujas li.cmp + li.cmp { animation-delay: -1.2s; }
+@keyframes flota { 50% { transform: translateY(-14px); } }
+.cuatro { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1.5px solid var(--tinta); }
+.cuatro article { padding: 24px 22px 8px 0; }
+.cuatro article + article { padding-left: 22px; border-left: 1px solid var(--linea); }
+.cuatro h3 { font-size: 22px; line-height: 1.15; font-weight: 800; margin-bottom: 10px; }
+.cuatro p { color: var(--suave); font-size: 16px; }
+.cuatro .costo { margin-top: 12px; font-size: 14px; font-weight: 700; color: var(--tinta); font-variant-numeric: tabular-nums; }
+.orden-nota { color: var(--suave); max-width: 70ch; margin-top: 28px; }
+@media (max-width: 980px) { .cuatro { grid-template-columns: 1fr 1fr; } .cuatro article:nth-child(3) { padding-left: 0; border-left: 0; } .cuatro article:nth-child(n+3) { border-top: 1px solid var(--linea); } }
+@media (max-width: 560px) { .orden-burbujas { gap: 10px; } .orden-burbujas li { width: calc(var(--d) * .8); height: calc(var(--d) * .8); font-size: 12px; } .cuatro { grid-template-columns: 1fr; } .cuatro article, .cuatro article + article { padding: 20px 0 8px; border-left: 0; } .cuatro article + article { border-top: 1px solid var(--linea); } }
+
 /* Por dentro */
 .dentro { display: grid; grid-template-columns: .8fr 1.2fr; gap: 56px; padding-bottom: 96px; align-items: start; }
 @media (max-width: 880px) { .dentro { grid-template-columns: 1fr; gap: 28px; } }

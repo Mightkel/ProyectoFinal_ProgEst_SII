@@ -82,11 +82,11 @@ input:focus, select:focus { border-color: var(--cobalto); outline: none; box-sha
 .fila.suena::before { content: ""; position: absolute; left: -10px; top: 12px; bottom: 12px; width: 4px; border-radius: 4px; background: var(--cobalto); }
 .fila.suena .t { color: var(--cobalto); }
 .port { width: 46px; height: 46px; border-radius: 11px; background: var(--g); color: var(--gt); display: grid; place-items: center; font: 800 19px var(--display); flex: none; }
+.fila > :nth-child(2) { min-width: 0; overflow-wrap: anywhere; }   /* títulos largos no empujan los botones fuera */
 .fila .t { font-weight: 700; line-height: 1.25; }
 .fila .a { color: var(--suave); font-size: 14px; }
 .fila .acc { display: flex; align-items: center; gap: 2px; }
 .dur { color: var(--suave); font-size: 14px; font-variant-numeric: tabular-nums; margin-right: 8px; }
-.num { width: 24px; text-align: center; color: var(--suave); font-size: 14px; font-variant-numeric: tabular-nums; }
 .vacio { color: var(--suave); padding: 22px 4px; }
 .cab-lista { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
 .cab-lista h2 { margin: 0; }
@@ -155,7 +155,7 @@ details.nueva form { display: grid; grid-template-columns: repeat(auto-fit, minm
 /* ---------- Reproductor fijo ---------- */
 .reproductor { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; background: rgba(255, 255, 255, .92); backdrop-filter: blur(16px); border-top: 1px solid var(--linea); }
 .rep { max-width: 1180px; margin: 0 auto; padding: 12px 24px; display: grid; grid-template-columns: 1fr 1.7fr 1fr; align-items: center; gap: 20px; }
-@media (max-width: 880px) { .rep { grid-template-columns: 1fr; gap: 6px; padding: 10px 16px; } .rep .der { display: none; } .rep .info { display: none; } }
+@media (max-width: 880px) { .rep { grid-template-columns: 1fr; gap: 6px; padding: 10px 16px; } }
 .rep .info { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .rep .info b { display: block; line-height: 1.25; }
 .rep .info span { color: var(--suave); font-size: 14px; }
@@ -164,8 +164,7 @@ details.nueva form { display: grid; grid-template-columns: repeat(auto-fit, minm
 .controles .ic.play { width: 44px; height: 44px; background: var(--tinta); color: #fff; }
 .controles .ic.play:hover { background: var(--cobalto); }
 .progreso { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--suave); font-variant-numeric: tabular-nums; }
-.pista { flex: 1; height: 18px; display: flex; align-items: center; cursor: pointer; }
-.pista::before { content: ""; position: absolute; }
+.pista { flex: 1; height: 18px; display: flex; align-items: center; cursor: pointer; border-radius: 4px; }
 .pista .riel { position: relative; width: 100%; height: 5px; border-radius: 4px; background: var(--linea); }
 .pista .riel b { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: var(--tinta); }
 .rep .der { display: flex; justify-content: flex-end; }
@@ -180,9 +179,17 @@ details.nueva form { display: grid; grid-template-columns: repeat(auto-fit, minm
 @media (max-width: 880px) {
   .cabecera-in { padding: 12px 16px 0; }
   .tabs { width: 100%; overflow-x: auto; scrollbar-width: none; }
-  .tabs button { white-space: nowrap; padding: 10px 12px; }
+  .tabs button, .tabs a { white-space: nowrap; padding: 10px 12px; }
   main { padding: 20px 16px 8px; }
-  .rep .der { display: none; }
+  body { padding-bottom: 160px; }   /* el reproductor fijo mide ~140px en móvil */
+  .rep .der { display: none; }   /* va después de la regla base de .rep .der para poder ocultarla */
+}
+@media (max-width: 560px) {
+  /* En pantallas angostas los botones de cada fila bajan a su propia línea */
+  .fila { grid-template-columns: auto 1fr; row-gap: 4px; }
+  .fila .acc { grid-column: 1 / -1; justify-content: flex-end; flex-wrap: wrap; }
+  .herr input[type=search] { min-width: 0; flex-basis: 100%; }
+  .herr select { flex: 1; min-width: 0; }
 }
 
 .hero .aviso-sim { margin-top: 18px; font-size: 14px; max-width: 46ch; opacity: .85; }
@@ -194,4 +201,3 @@ details.nueva form { display: grid; grid-template-columns: repeat(auto-fit, minm
 .etiqueta-d { background-size: cover; background-position: center; }
 .vol { display: flex; align-items: center; gap: 8px; color: var(--suave); margin-right: 8px; }
 .vol input[type=range] { width: 90px; padding: 0; border: 0; background: none; accent-color: var(--tinta); box-shadow: none; }
-.marca { font-family: var(--display); }

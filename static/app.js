@@ -1,7 +1,7 @@
 /* Interfaz del reproductor. Solo dibuja: toda la lógica de datos está en Python. */
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const esc = t => String(t).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const fmt = s => Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
 
 /* Un color por género: fondo y color de texto con contraste suficiente */
@@ -113,7 +113,10 @@ async function buscar() {
 async function recargar() {
   S = await api("/api/estado");
   const id = S.playlist.actual;
-  if (id !== ultimoId) { pos = 0; ultimoId = id; }
+  if (id !== ultimoId) {
+    pos = 0; ultimoId = id;
+    if (idAudio === id) audio.currentTime = 0;   // se vuelve a una pista ya cargada: empieza desde el principio
+  }
   if (id == null) sonando = false;
   await buscar();
   pintarTodo();
@@ -381,7 +384,7 @@ function pintarReproductor() {
         ${ic("sig", "siguiente", null, "Siguiente")}
         ${ic("repetir", "circular", null, "Repetir lista", p.circular ? "on" : "")}
       </div>
-      <div class="progreso"><span id="t-pos">0:00</span><div class="pista" id="pista" role="slider" aria-label="Posición"><div class="riel"><b id="barra"></b></div></div><span>${c ? fmt(duracionDe(c)) : "0:00"}</span></div>
+      <div class="progreso"><span id="t-pos">0:00</span><div class="pista" id="pista" role="slider" tabindex="${c ? 0 : -1}" aria-label="Posición" aria-valuemin="0" aria-valuemax="${c ? duracionDe(c) : 0}" aria-valuenow="0" aria-valuetext="0:00"><div class="riel"><b id="barra"></b></div></div><span>${c ? fmt(duracionDe(c)) : "0:00"}</span></div>
     </div>
     <div class="der"><label class="vol" title="Volumen"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9zM16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <input type="range" id="vol" min="0" max="1" step="0.05" value="${audio.volume}" aria-label="Volumen"></label>
@@ -392,8 +395,20 @@ function pintarReproductor() {
 function pintarProgreso() {
   const c = actual();
   if (!c || !$("#barra")) return;
-  $("#barra").style.width = Math.min(100, (pos / duracionDe(c)) * 100) + "%";
+  const total = duracionDe(c);
+  $("#barra").style.width = (total > 0 ? Math.min(100, (pos / total) * 100) : 0) + "%";
   $("#t-pos").textContent = fmt(pos);
+  const pista = $("#pista");
+  pista.setAttribute("aria-valuemax", total);
+  pista.setAttribute("aria-valuenow", pos);
+  pista.setAttribute("aria-valuetext", `${fmt(pos)} de ${fmt(total)}`);
+}
+/* Salta a un segundo de la canción actual (clic o teclado sobre la barra) */
+function irASegundo(segundo) {
+  const c = actual(); if (!c) return;
+  pos = Math.max(0, Math.min(duracionDe(c), Math.floor(segundo)));
+  if (hayAudio(c) && idAudio === c.id) audio.currentTime = pos;
+  pintarProgreso();
 }
 /* Modo simulado: solo para canciones sin archivo de audio */
 setInterval(() => {
@@ -414,7 +429,10 @@ function moverIndicador() {
 }
 function irA(tab) {
   tabActual = tab;
-  $$("#tabs button").forEach(b => b.classList.toggle("activa", b.dataset.tab === tab));
+  $$("#tabs button").forEach(b => {
+    b.classList.toggle("activa", b.dataset.tab === tab);
+    if (b.dataset.tab === tab) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
+  });
   $$(".panel").forEach(p => p.classList.toggle("activo", p.id === tab));
   moverIndicador();
   window.scrollTo({ top: 0 });
@@ -458,9 +476,7 @@ document.addEventListener("click", async e => {
   if (pista) {
     const c = actual(); if (!c) return;
     const r = pista.getBoundingClientRect();
-    pos = Math.floor(((e.clientX - r.left) / r.width) * duracionDe(c));
-    if (hayAudio(c) && idAudio === c.id) audio.currentTime = pos;
-    return pintarProgreso();
+    return irASegundo(((e.clientX - r.left) / r.width) * duracionDe(c));
   }
   const b = e.target.closest("[data-acc]");
   if (!b) return;
@@ -484,6 +500,11 @@ document.addEventListener("input", e => {
 
 /* Atajos de teclado: espacio, flechas izquierda y derecha */
 document.addEventListener("keydown", async e => {
+  /* Con la barra de progreso enfocada, las flechas adelantan o atrasan 5 segundos */
+  if (e.target.id === "pista" && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {
+    e.preventDefault();
+    return irASegundo(pos + (e.key === "ArrowRight" ? 5 : -5));
+  }
   if (!S || e.ctrlKey || e.metaKey || e.altKey || e.target.closest("input, select, textarea, button, summary")) return;
   const mapa = { " ": "pp", ArrowRight: "siguiente", ArrowLeft: "anterior" };
   const acc = mapa[e.key];
@@ -496,7 +517,9 @@ document.addEventListener("keydown", async e => {
 function actualizarSistema() {
   const c = actual();
   document.title = c ? `${c.titulo}, ${c.artista} · Ritmo` : "Ritmo · Música en español";
-  if (!("mediaSession" in navigator) || !c) return;
+  if (!("mediaSession" in navigator)) return;
+  navigator.mediaSession.playbackState = c && sonando ? "playing" : "paused";
+  if (!c) { navigator.mediaSession.metadata = null; return; }
   navigator.mediaSession.metadata = new MediaMetadata({
     title: c.titulo, artist: c.artista, album: c.genero,
     artwork: c.portada ? [{ src: urlPortada(c), sizes: "512x512" }] : [],
