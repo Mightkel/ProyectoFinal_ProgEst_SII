@@ -6,9 +6,7 @@ __pycache__/
 .pytest_cache/
 
 #Datos y archivos cargados desde la aplicación
-/datos/
-/musica/
-/portadas/
+
 
 #Configuración local
 .env
