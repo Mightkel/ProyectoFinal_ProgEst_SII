@@ -5,7 +5,6 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 
-#Datos y archivos cargados desde la aplicación
 
 
 #Configuración local
