@@ -1,0 +1,18 @@
+#Entorno y archivos generados por Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+#Datos y archivos cargados desde la aplicación
+/datos/
+/musica/
+/portadas/
+
+#Configuración local
+.env
+.env.*
+!.env.example
+.idea/
+.vscode/
