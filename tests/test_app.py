@@ -78,6 +78,56 @@ class PruebasAplicacion(unittest.TestCase):
                       {"fuente": "numeros", "numeros": [2, 1], "algoritmo": "inexistente"}):
             self.assertEqual(self.cliente.post("/api/ordenar", json=datos).status_code, 400)
 
+    def test_eliminar_actual_actualiza_historial_y_persistencia(self):
+        self.agregar_canciones()
+        for i in [1, 2, 3]:
+            self.cliente.post("/api/playlist/agregar", json={"id": i})
+        self.cliente.post("/api/reproducir", json={"id": 1})
+        r = self.cliente.delete("/api/canciones/1")
+        self.assertEqual(r.status_code, 200)
+        proyecto.cargar_estado()
+        estado = self.cliente.get("/api/estado").json
+        self.assertEqual(estado["playlist"]["ids"], [2, 3])
+        self.assertEqual(estado["playlist"]["actual"], 2)
+        self.assertEqual(estado["historial"], [2])
+        self.assertEqual(self.cliente.get("/api/buscar?q=Zeta").json["resultados"], [])
+
+    def test_eliminar_actual_en_medio_o_al_final(self):
+        self.agregar_canciones()
+        for i in [1, 2, 3]:
+            self.cliente.post("/api/playlist/agregar", json={"id": i})
+        self.cliente.post("/api/reproducir", json={"id": 1})
+        self.cliente.post("/api/reproducir", json={"id": 2})
+        self.cliente.delete("/api/canciones/2")
+        estado = self.cliente.get("/api/estado").json
+        self.assertEqual(estado["playlist"]["actual"], 3)
+        self.assertEqual(estado["historial"], [3, 1])
+        #Volver debe recuperar A, sin referencias a la canción B eliminada.
+        self.assertEqual(self.cliente.post("/api/volver").status_code, 200)
+        self.assertEqual(self.cliente.get("/api/estado").json["playlist"]["actual"], 1)
+        self.cliente.post("/api/reproducir", json={"id": 3})
+        self.cliente.delete("/api/canciones/3")
+        estado = self.cliente.get("/api/estado").json
+        self.assertEqual(estado["playlist"]["actual"], 1)
+        self.assertEqual(estado["historial"], [1])
+
+    def test_eliminar_no_actual_y_ultima_cancion(self):
+        self.agregar_canciones()
+        for i in [1, 2]:
+            self.cliente.post("/api/playlist/agregar", json={"id": i})
+        self.cliente.post("/api/reproducir", json={"id": 1})
+        self.cliente.post("/api/reproducir", json={"id": 2})
+        self.cliente.delete("/api/canciones/1")
+        estado = self.cliente.get("/api/estado").json
+        self.assertEqual(estado["playlist"]["actual"], 2)
+        self.assertEqual(estado["historial"], [2])
+        self.cliente.delete("/api/canciones/2")
+        estado = self.cliente.get("/api/estado").json
+        self.assertIsNone(estado["playlist"]["actual"])
+        self.assertEqual(estado["playlist"]["ids"], [])
+        self.assertEqual(estado["historial"], [])
+        self.assertEqual(self.cliente.post("/api/volver").status_code, 400)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -261,10 +261,14 @@ def borrar_cancion(id_cancion):
     cancion = biblioteca.buscar_por_id(estado["canciones"], id_cancion)
     if cancion is None:
         return error("No existe esa canción", 404)
+    antes = playlist.id_actual(estado["lista"])
     biblioteca.eliminar(estado["canciones"], id_cancion)
     estado["arbol"] = indice.eliminar(estado["arbol"], cancion["titulo"], id_cancion)
     playlist.eliminar(estado["lista"], id_cancion)
     historial.quitar(estado["pila"], id_cancion)
+    despues = playlist.id_actual(estado["lista"])
+    if antes == id_cancion and despues is not None:
+        historial.apilar(estado["pila"], despues)   #la vecina pasa a ser la canción actual
     guardar_todo()
     return jsonify({"ok": True})
 
