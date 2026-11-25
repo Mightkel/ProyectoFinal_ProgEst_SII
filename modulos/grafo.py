@@ -1,13 +1,4 @@
 #Mapa de artistas relacionados: GRAFO NO DIRIGIDO con pesos.
-
-#Se guarda como diccionario de adyacencia (ya es JSON puro):
-    #{"Soda Stereo": {"Gustavo Cerati": 10, "Caifanes": 6}, ...}
-#El peso (1 a 10) dice qué tan parecidos son dos artistas.
-
-#Para qué sirve:
-  #- relacionados(): recomendaciones, recorrido por niveles (BFS) desde el artista que suena.
-  #- camino(): "¿cómo se conectan estos dos artistas?", camino más corto (BFS).
-
 from collections import deque
 
 
@@ -22,10 +13,38 @@ def conectar(mapa, artista_a, artista_b, peso):
     mapa[artista_b][artista_a] = peso       #la relación va en los dos sentidos
 
 
+def artistas_de(cancion):
+    return cancion.get("artistas") or [cancion["artista"]]
+
+
 def sincronizar(mapa, canciones):
-    #Todo artista de la biblioteca debe existir como nodo (aunque no tenga conexiones).
+    #Todo artista de la biblioteca debe existir como nodo, y quienes colaboran en una canción
+    #quedan conectados entre sí (sin tocar conexiones que ya existan).
     for cancion in canciones:
-        agregar_artista(mapa, cancion["artista"])
+        for artista in artistas_de(cancion):
+            agregar_artista(mapa, artista)
+        conectar_colaboradores(mapa, artistas_de(cancion))
+
+
+def conectar_colaboradores(mapa, artistas, peso=8):
+    #Une a los artistas de una misma canción. No cambia el peso de una conexión existente.
+    for i, a in enumerate(artistas):
+        for b in artistas[i + 1:]:
+            if b not in mapa.get(a, {}):
+                conectar(mapa, a, b, peso)
+
+
+def quitar_artista(mapa, artista):
+    #Borra un artista y todas sus conexiones.
+    for vecino in mapa.pop(artista, {}):
+        mapa.get(vecino, {}).pop(artista, None)
+
+
+def limpiar_sin_canciones(mapa, canciones):
+    #Quita del mapa a los artistas que ya no tienen ninguna canción.
+    en_uso = {a for c in canciones for a in artistas_de(c)}
+    for artista in [a for a in mapa if a not in en_uso]:
+        quitar_artista(mapa, artista)
 
 
 def relacionados(mapa, origen, profundidad=2):
@@ -55,6 +74,18 @@ def relacionados(mapa, origen, profundidad=2):
         nivel = siguiente
     resultado.sort(key=lambda r: (r["distancia"], -r["afinidad"], r["artista"]))
     return resultado
+
+
+def relacionados_de_varios(mapa, origenes, profundidad=2):
+    mejores = {}
+    for origen in origenes:
+        for r in relacionados(mapa, origen, profundidad):
+            if r["artista"] in origenes:
+                continue
+            actual = mejores.get(r["artista"])
+            if actual is None or (r["distancia"], -r["afinidad"]) < (actual["distancia"], -actual["afinidad"]):
+                mejores[r["artista"]] = r
+    return sorted(mejores.values(), key=lambda r: (r["distancia"], -r["afinidad"], r["artista"]))
 
 
 def camino(mapa, origen, destino):

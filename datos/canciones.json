@@ -173,5 +173,12 @@
     "artista": "Marc Anthony",
     "genero": "Salsa",
     "duracion": 255
+  },
+  {
+    "id": 26,
+    "titulo": "Corazón Delator",
+    "artista": "Soda Stereo",
+    "genero": "Pop",
+    "duracion": 326
   }
 ]

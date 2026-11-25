@@ -1,3 +1,5 @@
+import io
+import os
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -13,6 +15,12 @@ class PruebasAplicacion(unittest.TestCase):
         datos = patch.object(proyecto.almacenamiento, "CARPETA_DATOS", carpeta.name)
         datos.start()
         self.addCleanup(datos.stop)
+        #Borrar una canción también borra sus archivos <id>.ext: las carpetas de audio y portadas
+        #de las pruebas son temporales para no tocar la música real del proyecto.
+        for nombre in ("CARPETA_AUDIO", "CARPETA_PORTADAS"):
+            archivos = patch.object(proyecto, nombre, f"{carpeta.name}/{nombre.lower()}")
+            archivos.start()
+            self.addCleanup(archivos.stop)
         testing = patch.dict(proyecto.app.config, TESTING=True)
         testing.start()
         self.addCleanup(testing.stop)
@@ -127,6 +135,38 @@ class PruebasAplicacion(unittest.TestCase):
         self.assertEqual(estado["playlist"]["ids"], [])
         self.assertEqual(estado["historial"], [])
         self.assertEqual(self.cliente.post("/api/volver").status_code, 400)
+
+    def test_validacion_de_canciones(self):
+        r = self.cliente.post("/api/validar", json={"titulo": " ", "artista": "", "genero": "Polka", "duracion": "3:75"})
+        self.assertFalse(r.json["ok"])
+        self.assertEqual(set(r.json["errores"]), {"titulo", "artista", "genero", "duracion"})
+        self.agregar_canciones()
+        r = self.cliente.post("/api/canciones", json={"titulo": "zeta", "artista": "banda c", "genero": "rock", "duracion": "3:00"})
+        self.assertEqual(r.status_code, 400)                    #repetida aunque cambien mayúsculas
+        self.assertIn("titulo", r.json["campos"])
+
+    def test_colaboraciones_y_edicion(self):
+        r = self.cliente.post("/api/canciones", json={
+            "titulo": "Juntos", "artista": "Ana feat. Beto & Caro", "genero": "Pop", "duracion": "3:10"})
+        self.assertEqual(r.json["artistas"], ["Ana", "Beto", "Caro"])
+        mapa = self.cliente.get("/api/estado").json["grafo"]
+        self.assertEqual(set(mapa["Ana"]), {"Beto", "Caro"})    #los colaboradores quedan conectados
+        r = self.cliente.put(f"/api/canciones/{r.json['id']}", json={
+            "titulo": "Juntos", "artista": "Ana", "genero": "Pop", "duracion": "3:10"})
+        self.assertEqual(r.status_code, 200)
+        mapa = self.cliente.get("/api/estado").json["grafo"]
+        self.assertEqual(list(mapa), ["Ana"])                   #Beto y Caro ya no tienen canciones
+
+    def test_subir_portada_valida_el_contenido(self):
+        self.agregar_canciones()
+        falsa = {"archivo": (io.BytesIO(b"no soy una imagen"), "tapa.png")}
+        self.assertEqual(self.cliente.post("/api/canciones/1/portada", data=falsa).status_code, 400)
+        png = b"\x89PNG\r\n\x1a\n" + b"\x00" * 32
+        r = self.cliente.post("/api/canciones/1/portada", data={"archivo": (io.BytesIO(png), "tapa.png")})
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue(self.cliente.get("/api/estado").json["canciones"][0]["portada"])
+        self.cliente.delete("/api/canciones/1")
+        self.assertEqual(os.listdir(proyecto.CARPETA_PORTADAS), [])   #el archivo se borra con la canción
 
 
 if __name__ == "__main__":

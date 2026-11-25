@@ -23,12 +23,18 @@ reproducir su propia colección de música.
 
 ## Funciones principales
 
-- Agregar y eliminar canciones de la biblioteca.
+- Agregar, editar y eliminar canciones de la biblioteca, con validación mientras se
+  escribe: título, género de una lista, duración y canciones repetidas.
+- Canciones con varios artistas («Shakira feat. Bad Bunny»): quienes colaboran quedan
+  conectados en el mapa de artistas.
+- Adjuntar o cambiar la portada y el audio de cada canción; el servidor revisa el
+  formato, el tamaño y que el contenido sea realmente una imagen o un audio.
 - Buscar por título, artista o género.
 - Agregar canciones a la playlist, moverlas o dejarlas a continuación de la actual.
 - Avanzar, retroceder, mezclar y repetir la playlist.
 - Volver a una canción usando el historial de reproducción.
-- Conectar artistas con un peso de afinidad y consultar recomendaciones.
+- Conectar artistas desde el **Mapa de artistas** con un peso de afinidad y consultar
+  recomendaciones.
 - Ver las estructuras en la sección **Bajo el capó**.
 - Animar burbuja, selección, inserción y Quicksort; comparar sus operaciones y
   aplicar el orden a la playlist.
