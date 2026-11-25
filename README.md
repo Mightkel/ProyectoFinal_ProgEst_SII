@@ -222,3 +222,10 @@ permiten consultar los cambios de cada integrante.
 
 Cada integrante debe trabajar con su cuenta y registrar sus cambios con mensajes
 que expliquen el aporte realizado.
+
+
+## Informe de investigación y mediciones
+
+[Leer el informe de eficiencia de burbuja en Google Docs](https://docs.google.com/document/d/1jKV-kyk7mtB6CuS5KCIyYknx_zP2XOFl8KPfWWoDGnc/edit) · [Ver el script de medición](analisis/medir_burbuja.py)
+
+Desde la raíz del repositorio, ejecutar `python analisis/medir_burbuja.py`. Para una prueba breve, usar `python analisis/medir_burbuja.py 5`. El script mide el tiempo sin guardar los pasos de animación y cuenta comparaciones e intercambios para listas ordenadas, aleatorias e inversas. Comprueba el resultado contra Ritmo para una semilla por tamaño y caso. Guarda las medianas y los conteos en `analisis/resultados_<versión>.csv`. El informe deduce T(n) y E(n) del código. El script no mide la memoria utilizada.
